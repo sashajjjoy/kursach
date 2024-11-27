@@ -1,0 +1,198 @@
+/* Цветовая палитра */
+:root {
+    --olive: #6b8e23;
+    --dark-brown: #654321;
+    --light-brown: #D2B48C;
+    --orange: #FFA500;
+    --primary-color: #6b8e23;
+    --secondary-color: #654321;
+    --accent-color: #FFA500;
+}
+
+/* Общие стили */
+body {
+    background-color: #f8f9fa;
+    font-family: 'Arial', sans-serif;
+    padding-top: 70px; /* Для фиксированной навигации */
+}
+
+/* Навигация */
+.navbar {
+    background-color: var(--olive);
+}
+
+.navbar-nav .nav-link {
+    color: #fff;
+    transition: color 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+    color: var(--accent-color);
+    text-decoration: underline;
+}
+
+/* Кнопки */
+.btn-primary {
+    background-color: var(--olive);
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: var(--orange);
+}
+
+.btn-warning {
+    background-color: var(--light-brown);
+    border: none;
+    color: #fff;
+}
+
+.btn-warning:hover {
+    background-color: var(--orange);
+}
+
+.button {
+    background-color: var(--light-brown); /* Цвет светло-коричневый */
+    color: #FFF; /* Цвет текста кнопок */
+    padding: 10px 20px; /* Верхний и нижний отступ - 10px, боковые - 20px */
+    border: none; /* Убираем рамку */
+    border-radius: 5px; /* Скругленные края */
+    font-size: 16px; /* Размер шрифта */
+    cursor: pointer; /* Курсор в виде руки на кнопке */
+    transition: background-color 0.3s ease;
+}
+.button:hover {
+    background-color: var(--orange); /* Цвет оранжевый */
+}
+
+/* Герой-секция */
+.hero-section {
+    position: relative;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+}
+
+.hero-section h1 {
+    font-size: 3rem;
+    animation: fadeInDown 1s ease-out;
+}
+
+.hero-section p {
+    font-size: 1.25rem;
+    animation: fadeInUp 1s ease-out;
+}
+
+.hero-section a {
+    animation: fadeIn 1s ease-out;
+}
+
+/* Анимации */
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Секции с белым фоном */
+#about,
+#gallery,
+#testimonials,
+#contact,
+#reservation {
+    background-color: #ffffff;
+    color: #000;
+}
+
+/* Секция "О ресторане" */
+#about .feature-icon i {
+    color: var(--accent-color);
+}
+
+#about h4 {
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+
+/* Галерея */
+#gallery .gallery-item img {
+    transition: transform 0.3s ease;
+}
+
+#gallery .gallery-item img:hover {
+    transform: scale(1.05);
+}
+
+/* Отзывы */
+#testimonials .testimonial {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+#testimonials .testimonial:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+/* Форма бронирования (восстановлена оригинальная) */
+.reservation-form {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.reservation-form .form-group {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.reservation-form .form-group i {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%);
+    color: #6c757d;
+}
+
+.reservation-form input {
+    padding-left: 40px;
+}
+
+.reservation-form label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* Футер */
+footer {
+    background-color: var(--dark-brown);
+}
+
+footer a {
+    color: #fff;
+    transition: color 0.3s ease;
+}
+
+footer a:hover {
+    color: var(--accent-color);
+}
+
+/* Медиа-запросы */
+@media (max-width: 768px) {
+    .hero-section h1 {
+        font-size: 2rem;
+    }
+    .hero-section p {
+        font-size: 1rem;
+    }
+}

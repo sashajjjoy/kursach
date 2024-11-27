@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-pb1X/5vXqktgA1rNtbpL+PO9h+5d3H3q+e7kx5c/Np3FI1nYf4xVIl9QbqFqRmt8E9I1Y/5J7BQwZ7pHheUUBQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <title>Cogito ergo sum - Бронирование столиков в лучшем римском ресторане Москвы</title>
+</head>
+<body>
+  <header class="fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-olive">
+      <div class="container py-2">
+        <a class="navbar-brand d-flex align-items-center" href="#">
+          <img src="{% static 'images/logo.png' %}" alt="Логотип" style="width: 48px;">
+          <span class="ms-2 fw-bold text-light">Cogito ergo sum</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Переключить навигацию">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'personal_cab' %}">Личный кабинет</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#about">О ресторане</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#gallery">Галерея</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#testimonials">Отзывы</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#contact">Контакты</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#reservation">Забронировать</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Главная секция -->
+  <section class="hero-section text-white text-center d-flex align-items-center" style="background-image: url('static/images/main.png'); background-size: cover; height: 100vh;">
+    <div class="container">
+      <h1 class="display-4 fw-bold">Добро пожаловать в Cogito ergo sum</h1>
+      <p class="lead mb-4">Изысканная кухня и уютная атмосфера в самом сердце города. Откройте для себя незабываемые вкусы!</p>
+      <a href="#reservation" class="btn btn-primary btn-lg">Забронировать столик</a>
+    </div>
+  </section>
+
+  <!-- О ресторане -->
+  <section id="about" class="py-5 bg-white">
+    <div class="container">
+      <h2 class="text-center mb-4">О нашем ресторане</h2>
+      <div class="row">
+        <div class="col-md-4">
+          <div class="feature-icon text-center mb-3">
+            <i class="fas fa-chef fa-3x text-warning"></i>
+          </div>
+          <h4 class="text-center">Профессиональные шеф-повара</h4>
+          <p class="text-center">Наши шеф-повара обладают многолетним опытом и творческим подходом к созданию блюд. Они используют только свежие и качественные ингредиенты, чтобы каждый визит в наш ресторан был настоящим гастрономическим праздником.</p>
+        </div>
+        <div class="col-md-4">
+          <div class="feature-icon text-center mb-3">
+            <i class="fas fa-couch fa-3x text-warning"></i>
+          </div>
+          <h4 class="text-center">Уютная атмосфера</h4>
+          <p class="text-center">Мы создали атмосферу, где каждый гость чувствует себя как дома. Стильный интерьер, приятная музыка и внимательный сервис делают пребывание у нас незабываемым.</p>
+        </div>
+        <div class="col-md-4">
+          <div class="feature-icon text-center mb-3">
+            <i class="fas fa-book-open fa-3x text-warning"></i>
+          </div>
+          <h4 class="text-center">Разнообразное меню</h4>
+          <p class="text-center">Наше меню включает широкий ассортимент блюд: от классических до авторских, а также сезонные предложения. Каждый найдет что-то по своему вкусу!</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Галерея -->
+  <section id="gallery" class="py-5 bg-white">
+    <div class="container">
+      <h2 class="text-center mb-4">Галерея</h2>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="gallery-item">
+            <img src="static/images/gallery1.png" class="img-fluid rounded" alt="Фото 1">
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="gallery-item">
+            <img src="static/images/gallery2.png" class="img-fluid rounded" alt="Фото 2">
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="gallery-item">
+            <img src="static/images/gallery3.png" class="img-fluid rounded" alt="Фото 3">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Отзывы -->
+  <section id="testimonials" class="py-5 bg-white">
+    <div class="container">
+      <h2 class="text-center mb-4">Отзывы наших гостей</h2>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="testimonial p-4 bg-white rounded shadow-sm mb-4">
+            <p class="mb-2">"Лучший ресторан в Москве! Великолепная еда и отличный сервис."</p>
+            <h5 class="mb-0">- Анна П.</h5>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="testimonial p-4 bg-white rounded shadow-sm mb-4">
+            <p class="mb-2">"Замечательное место для романтического ужина. Очень рекомендую!"</p>
+            <h5 class="mb-0">- Сергей К.</h5>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Бронирование столика -->
+    <section id="reservation" class="reservation-form bg-white">
+        <div class="container">
+          <h2 class="text-center mb-4">Забронируйте столик</h2>
+          {% if error %}
+              <div class="alert alert-danger">
+                  {{ error }}
+              </div>
+          {% endif %}
+          <form method="POST" action="{% url 'reservation_form' %}">
+            {% csrf_token %}
+            <div class="form-group">
+              <i class="fas fa-user"></i>
+              <label for="first_name">Имя</label>
+              <input type="text" class="form-control" id="first_name" name="first_name" placeholder="Введите ваше имя" required>
+            </div>
+            <div class="form-group">
+              <i class="fas fa-user"></i>
+              <label for="last_name">Фамилия</label>
+              <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Введите вашу фамилию" required>
+            </div>
+            <div class="form-group">
+              <i class="fas fa-envelope"></i>
+              <label for="email">Email</label>
+              <input type="email" class="form-control" id="email" name="email" placeholder="Введите ваш email" required>
+            </div>
+            <div class="form-group">
+              <i class="fas fa-phone"></i>
+              <label for="phone">Номер телефона</label>
+              <input type="tel" class="form-control" id="phone" name="phone" placeholder="Введите номер телефона" required>
+            </div>
+            <div class="form-group">
+              <i class="fas fa-users"></i>
+              <label for="number_of_people">Количество человек</label>
+              <input type="number" class="form-control" id="number_of_people" name="number_of_people" placeholder="Введите количество человек" required>
+            </div>
+            <div class="form-group">
+              <i class="fas fa-calendar-alt"></i>
+              <label for="date">Дата</label>
+              <input type="date" class="form-control" id="date" name="date" required>
+            </div>
+            <div class="form-group">
+              <i class="fas fa-clock"></i>
+              <label for="time">Время</label>
+              <input type="time" class="form-control" id="time" name="time" required>
+            </div>
+            <div class="form-group">
+              <i class="fas fa-clock"></i>
+              <label for="duration_of_booking">Длительность посещения(в часах)</label>
+              <input type="number" class="form-control" id="duration_of_booking" name="duration_of_booking" required>
+            </div>
+            <button type="submit" class="button">Забронировать</button>
+          </form>
+        </div>
+    </section>
+
+  <!-- Контакты -->
+  <section id="contact" class="py-5 bg-white">
+    <div class="container">
+      <h2 class="text-center mb-4">Свяжитесь с нами</h2>
+      <div class="row">
+        <div class="col-md-6">
+          <form>
+            <div class="mb-3">
+              <label for="contactName" class="form-label">Имя</label>
+              <input type="text" class="form-control" id="contactName" placeholder="Введите ваше имя" required>
+            </div>
+            <div class="mb-3">
+              <label for="contactEmail" class="form-label">Email</label>
+              <input type="email" class="form-control" id="contactEmail" placeholder="Введите ваш email" required>
+            </div>
+            <div class="mb-3">
+              <label for="contactMessage" class="form-label">Сообщение</label>
+              <textarea class="form-control" id="contactMessage" rows="5" placeholder="Введите ваше сообщение" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Отправить</button>
+          </form>
+        </div>
+        <div class="col-md-6">
+          <h5>Наш адрес</h5>
+          <p>Москва, ул. Примерная, д. 1</p>
+          <h5>Телефон</h5>
+          <p>+7 (999) 123-45-67</p>
+          <h5>Email</h5>
+          <p>info@cogitoergo.sum</p>
+          <h5>Мы в социальных сетях</h5>
+          <a href="#" class="me-3"><i class="fab fa-facebook fa-2x"></i></a>
+          <a href="#" class="me-3"><i class="fab fa-instagram fa-2x"></i></a>
+          <a href="#"><i class="fab fa-twitter fa-2x"></i></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Футер -->
+  <footer class="bg-brown text-white text-center py-4">
+    <div class="container">
+      &copy; 2024 Cogito ergo sum. Все права защищены.
+      <div class="mt-2">
+        <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" class="text-white me-3"><i class="fab fa-instagram"></i></a>
+        <a href="#" class="text-white"><i class="fab fa-twitter"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+  <script src="main.js"></script>
+</body>
+</html>
