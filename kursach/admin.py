@@ -1,33 +1,36 @@
-
 from django.contrib import admin
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 from .models import Client, Booking, DiningTable
 from simple_history.admin import SimpleHistoryAdmin
+from django.utils import timezone
+from datetime import timedelta
+
 
 class ClientResource(resources.ModelResource):
     class Meta:
         model = Client
 
-    def dehydrate_email(self, client):
-        return client.email + ' (client)'
+    def get_export_queryset(self):
+        # Экспортируем только клиентов, у которых есть бронирования за последние 30 дней
+        last_30_days = timezone.now() - timedelta(days=30)
+        active_clients = Booking.objects.filter(booking_datetime__gte=last_30_days).values_list('client', flat=True)
+        return super().get_export_queryset().filter(pk__in=active_clients)
 
 class BookingResource(resources.ModelResource):
     class Meta:
         model = Booking
-
-    def get_export_queryset(self):
-        return super().get_export_queryset().filter(status='confirmed')
-
-    def dehydrate_booking_id(self, booking):
-        return f"Booking ID: {booking.booking_id}"
+    #для кастомизации значений отдельных полей при экспорте убрали ошибку с дататайм
+    def dehydrate_booking_datetime(self, booking):
+        # Удаляем временную зону из datetime
+        return booking.booking_datetime.replace(tzinfo=None)
 
 class DiningTableResource(resources.ModelResource):
     class Meta:
         model = DiningTable
 
     def get_seating_capacity(self, dining_table):
-        return f"Capacity: {dining_table.seating_capacity}"
+        return f"Вместимость: {dining_table.seating_capacity} человек"
 
 class ClientAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
     resource_class = ClientResource

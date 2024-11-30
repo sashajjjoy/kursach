@@ -1,13 +1,10 @@
-from traceback import print_tb
-import logging
-from django.core.exceptions import ValidationError
+
 from django.db import models
 from django.contrib import admin
 from django.utils import timezone
 import pytz
 from simple_history.models import HistoricalRecords
 
-from datetime import timedelta, time as datetime_time  # Правильный импорт
 
 class Client(models.Model):
     client_id = models.AutoField(primary_key=True)
@@ -51,8 +48,6 @@ class BookingStatus(models.TextChoices):
     CONFIRMED = 'Confirmed', 'Подтверждено'
     CANCELLED = 'Cancelled', 'Отменено'
 
-logger = logging.getLogger('booking_app')
-
 
 class Booking(models.Model):
     booking_id = models.AutoField(primary_key=True)
@@ -62,24 +57,6 @@ class Booking(models.Model):
     status = models.CharField(max_length=20, choices=BookingStatus.choices, default=BookingStatus.PENDING)
     duration_of_booking = models.IntegerField(default=2)
     history = HistoricalRecords()
-    def clean(self):
-        moscow_timezone = pytz.timezone('Europe/Moscow')
-        now = timezone.now().astimezone(moscow_timezone)
-        booking_time = self.booking_datetime.time()
-
-        if self.booking_datetime < now:
-            raise ValidationError("Дата и время бронирования не могут быть в прошлом.")
-
-        earliest_time = datetime_time(9, 0)  # 09:00
-        if booking_time < earliest_time:
-            raise ValidationError("Время бронирования не может быть раньше 09:00.")
-
-        end_datetime = self.booking_datetime + timedelta(hours=int(self.duration_of_booking))
-        end_time = end_datetime.time()
-
-        latest_time = datetime_time(23, 59)
-        if end_time > latest_time:
-            raise ValidationError("Время окончания бронирования не может превышать полночь (00:00).")
 
     class Meta:
         db_table = 'booking'

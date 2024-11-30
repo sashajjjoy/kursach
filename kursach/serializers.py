@@ -37,15 +37,25 @@ class BookingSerializer(serializers.ModelSerializer):
         read_only_fields = ['booking_id', 'client']
 
     def validate_booking_datetime(self, value):
-        # Приводим текущее время в UTC (или к нужной временной зоне)
+        # Приводим текущее время к нужной временной зоне)
         now = datetime.now(tz=value.tzinfo) if value.tzinfo else datetime.now()
         if value < now:
             raise ValidationError('Дата будущего бронирования не может быть в прошлом.')
+
+        booking_hour = value.hour
+        # Проверяем, что время бронирования не раньше 09:00 и не позднее 23:00
+        if booking_hour < 9:
+            raise ValidationError("Время бронирования не может быть раньше 09:00.")
+        if booking_hour > 23:
+            raise ValidationError("Время бронирования не может быть позже 23:00.")
         return value
+
 
     def validate_duration_of_booking(self, value):
         if value < 0:
             raise ValidationError('Длительность бронирования не может быть отрицательной.')
+        elif value > 4:
+            raise ValidationError('Длительность бронирования не может превышать 4 часа, согасно правилам Ресторана.')
         return value
 
     def validate_client_first_name(self, value):
@@ -64,7 +74,6 @@ class BookingSerializer(serializers.ModelSerializer):
         client_last_name = validated_data.pop('client_last_name', '')
         client_phone_number = validated_data.pop('client_phone_number', '')
 
-        # Получение или создание клиента по email
         client, created = Client.objects.get_or_create(
             email=client_email,
             defaults={
