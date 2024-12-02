@@ -20,9 +20,8 @@ class ClientResource(resources.ModelResource):
 class BookingResource(resources.ModelResource):
     class Meta:
         model = Booking
-    #для кастомизации значений отдельных полей при экспорте убрали ошибку с дататайм
-    def dehydrate_booking_datetime(self, booking):
         # Удаляем временную зону из datetime
+    def dehydrate_booking_datetime(self, booking):
         return booking.booking_datetime.replace(tzinfo=None)
 
 class DiningTableResource(resources.ModelResource):

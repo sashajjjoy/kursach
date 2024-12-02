@@ -1,8 +1,6 @@
 
 from django.db.models import Q
-from rest_framework.exceptions import ValidationError
 from django.shortcuts import render, redirect
-from django.core.exceptions import ValidationError
 from rest_framework.permissions import AllowAny
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
@@ -29,7 +27,7 @@ class DiningTableListView(generics.ListAPIView):
 class BookingListView(generics.ListCreateAPIView):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
-    permission_classes = [AllowAny]  # Разрешить доступ всем для создания бронирований
+    permission_classes = [AllowAny]
 
 class BookingDetailView(generics.RetrieveDestroyAPIView):
     queryset = Booking.objects.all()
@@ -39,7 +37,98 @@ class BookingDetailView(generics.RetrieveDestroyAPIView):
         queryset = self.get_queryset()
         return Response({"results": list(queryset.values())})
 
+class BookingViewSet(viewsets.ModelViewSet):
+    queryset = Booking.objects.all().order_by('booking_datetime')
+    serializer_class = BookingSerializer
+    permission_classes = [AllowAny]
 
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filterset_class = BookingFilter
+    search_fields = [
+        'client__first_name',
+        'client__last_name',
+        'client__email',
+        'status',
+        'table__table_number'
+    ]
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        q_objects = Q()
+        query_params = self.request.query_params
+
+        filter_param = query_params.get('filter', None)
+        if filter_param:
+            # Разбиваем по '|', который представляет оператор OR
+            or_expressions = filter_param.split('|')
+            or_q_objects = Q()
+            for expr in or_expressions:
+                # Каждое expr может содержать условия, разделенные '&' (AND)
+                and_expressions = expr.split('&')
+                and_q = Q()
+                for and_expr in and_expressions:
+                    # Проверяем на наличие оператора NOT '~'
+                    is_negated = False
+                    if and_expr.startswith('~'):
+                        is_negated = True
+                        and_expr = and_expr[1:]  # Убираем '~' из выражения
+
+                    # Каждое and_expr в формате 'поле__lookup=значение'
+                    if '=' in and_expr:
+                        field_lookup, value = and_expr.split('=', 1)
+                        q = Q(**{field_lookup: value})
+                        if is_negated:
+                            and_q &= ~q
+                        else:
+                            and_q &= q
+                    else:
+                        continue
+                or_q_objects |= and_q
+            q_objects &= or_q_objects
+
+        # Применяем фильтры к queryset
+        queryset = queryset.filter(q_objects)
+
+        return queryset
+
+    @action(methods=['POST'], detail=True)
+    def update_booking_status(self, request, pk=None):
+        """добавляет дополнительный маршрут к API:Обновляет статус бронирования."""
+        booking = self.get_object()
+        status_data = request.data.get('status')
+
+        if not status_data:
+            return Response({'error': 'Статус должен быть предоставлен.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        booking.status = status_data
+        booking.save()
+        serializer = self.get_serializer(booking)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(methods=['get'], detail=False)
+    def week(self, request):
+        """Возвращает бронирования на следующую неделю."""
+        today = timezone.now()
+        start_of_next_week = today + timezone.timedelta(
+            days=(7 - today.weekday() % 7))  # Начало следующей недели (понедельник)
+        end_of_next_week = start_of_next_week + timezone.timedelta(days=7)  # Конец следующей недели
+
+        upcoming_bookings = self.queryset.filter(
+            booking_datetime__gte=start_of_next_week,
+            booking_datetime__lt=end_of_next_week
+        )
+
+        serializer = self.get_serializer(upcoming_bookings, many=True)
+        return Response(serializer.data)
+
+
+
+
+
+
+
+
+#frontend
 def reservation_form(request):
     if request.method == 'POST':
         # Получение данных из формы
@@ -84,13 +173,12 @@ def reservation_form(request):
             client.phone_number = phone
             client.save()
 
-        # Автоматический выбор доступного столика
         try:
             number_of_people = int(number_of_people)
             tables = DiningTable.objects.filter(seating_capacity__gte=number_of_people).order_by('seating_capacity')
             table = None
             for t in tables:
-                # Проверяем, свободен ли столик на выбранное время
+
                 if not Booking.objects.filter(table=t, booking_datetime=booking_datetime).exists():
                     table = t
                     break
@@ -119,7 +207,7 @@ def reservation_form(request):
                 'error': 'Этот столик уже забронирован на выбранное время.'
             })
 
-        # Перенаправление на страницу успеха
+
         return redirect('reservation_success')
 
     else:
@@ -174,91 +262,3 @@ def reservation_success(request):
 
 def personal_cab(request):
     return render(request, 'personal_cab.html')
-
-class BookingViewSet(viewsets.ModelViewSet):
-    queryset = Booking.objects.all().order_by('booking_datetime')
-    serializer_class = BookingSerializer
-    permission_classes = [AllowAny]
-
-    filter_backends = [DjangoFilterBackend, SearchFilter]
-    filterset_class = BookingFilter  # Используем ваш фильтр
-    search_fields = [
-        'client__first_name',
-        'client__last_name',
-        'client__email',
-        'status',
-        'table__table_number'
-    ]
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        q_objects = Q()  # Инициализируем пустой Q объект для фильтрации
-
-        # Получаем параметры запроса
-        query_params = self.request.query_params
-
-        # Парсим параметр 'filter'
-        filter_param = query_params.get('filter', None)
-        if filter_param:
-            # Разбиваем по '|', который представляет оператор OR
-            or_expressions = filter_param.split('|')
-            or_q_objects = Q()
-            for expr in or_expressions:
-                # Каждое expr может содержать условия, разделенные '&' (AND)
-                and_expressions = expr.split('&')
-                and_q = Q()
-                for and_expr in and_expressions:
-                    # Проверяем на наличие оператора NOT '~'
-                    is_negated = False
-                    if and_expr.startswith('~'):
-                        is_negated = True
-                        and_expr = and_expr[1:]  # Убираем '~' из выражения
-
-                    # Каждое and_expr в формате 'поле__lookup=значение'
-                    if '=' in and_expr:
-                        field_lookup, value = and_expr.split('=', 1)
-                        q = Q(**{field_lookup: value})
-                        if is_negated:
-                            and_q &= ~q
-                        else:
-                            and_q &= q
-                    else:
-                        # Неверное выражение
-                        continue
-                or_q_objects |= and_q
-            q_objects &= or_q_objects
-
-        # Применяем фильтры к queryset
-        queryset = queryset.filter(q_objects)
-
-        return queryset
-
-    @action(methods=['POST'], detail=True)
-    def update_booking_status(self, request, pk=None):
-        """Обновляет статус бронирования."""
-        booking = self.get_object()
-        status_data = request.data.get('status')
-
-        if not status_data:
-            return Response({'error': 'Статус должен быть предоставлен.'},
-                            status=status.HTTP_400_BAD_REQUEST)
-
-        booking.status = status_data
-        booking.save()
-        serializer = self.get_serializer(booking)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    @action(methods=['get'], detail=False)
-    def week(self, request):
-        """Возвращает бронирования на следующую неделю."""
-        today = timezone.now()
-        start_of_next_week = today + timezone.timedelta(
-            days=(7 - today.weekday() % 7))  # Начало следующей недели (понедельник)
-        end_of_next_week = start_of_next_week + timezone.timedelta(days=7)  # Конец следующей недели
-
-        upcoming_bookings = self.queryset.filter(
-            booking_datetime__gte=start_of_next_week,
-            booking_datetime__lt=end_of_next_week
-        )
-
-        serializer = self.get_serializer(upcoming_bookings, many=True)
-        return Response(serializer.data)

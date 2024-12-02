@@ -9,45 +9,14 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-USE_TZ = True  # Make sure this is True to enable timezone support
-TIME_ZONE = 'Europe/Moscow'  # Set to Moscow time
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': 'INFO',
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-        # Добавьте другие логгеры по необходимости
-    },
-}
-
-
+USE_TZ = True
+TIME_ZONE = 'Europe/Moscow'
 
 from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-(q*v0ho^9ek-r3!#2tjydk0*pd%c7w7(k=nijj$c3cmolnv#u='
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
@@ -61,9 +30,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
 }
 
-# Application definition
 INSTALLED_APPS = [
-    # Другие установленные приложения
     'kursach.apps.KursachConfig',
     'django.contrib.admin',
     'django.contrib.auth',
