@@ -35,41 +35,6 @@ class BookingDetailView(generics.RetrieveDestroyAPIView):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
 
-
-class ComplexDiningTableSearchView(generics.ListAPIView):
-    serializer_class = DiningTableSerializer
-    permission_classes = [AllowAny]
-
-    def get_queryset(self):
-        # Начинаем с полного queryset
-        queryset = DiningTable.objects.all()
-
-        # Получаем параметры из запроса
-        seating_capacity_gte = self.request.query_params.get('seating_capacity__gte', None)
-        description_icontains = self.request.query_params.get('description__icontains', None)
-
-        q_objects = Q()  # Начинаем с пустого Q объекта
-
-        # Фильтрация по вместимости (AND)
-        if seating_capacity_gte is not None:
-            try:
-                seating_capacity_gte = int(seating_capacity_gte)
-                q_objects &= Q(seating_capacity__gte=seating_capacity_gte)  # AND условие
-            except ValueError:
-                raise ValidationError("Параметр 'seating_capacity__gte' должен быть целым числом.")
-
-        # Фильтрация по описанию (AND)
-        if description_icontains is not None:
-            q_objects &= Q(description__icontains=description_icontains)  # AND условие
-
-        # Применяем фильтрацию к queryset
-        queryset = queryset.filter(q_objects)
-
-        # Для отладки выводим запрос SQL
-        print(queryset.query)  # Чтобы проверить какой SQL-запрос будет выполнен
-
-        return queryset
-
     def get(self, request):
         queryset = self.get_queryset()
         return Response({"results": list(queryset.values())})
@@ -213,8 +178,10 @@ def personal_cab(request):
 class BookingViewSet(viewsets.ModelViewSet):
     queryset = Booking.objects.all().order_by('booking_datetime')
     serializer_class = BookingSerializer
+    permission_classes = [AllowAny]
+
     filter_backends = [DjangoFilterBackend, SearchFilter]
-    filterset_class = BookingFilter  # Временно закомментируйте эту строку
+    filterset_class = BookingFilter  # Используем ваш фильтр
     search_fields = [
         'client__first_name',
         'client__last_name',
@@ -222,7 +189,48 @@ class BookingViewSet(viewsets.ModelViewSet):
         'status',
         'table__table_number'
     ]
-    permission_classes = [AllowAny]
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        q_objects = Q()  # Инициализируем пустой Q объект для фильтрации
+
+        # Получаем параметры запроса
+        query_params = self.request.query_params
+
+        # Парсим параметр 'filter'
+        filter_param = query_params.get('filter', None)
+        if filter_param:
+            # Разбиваем по '|', который представляет оператор OR
+            or_expressions = filter_param.split('|')
+            or_q_objects = Q()
+            for expr in or_expressions:
+                # Каждое expr может содержать условия, разделенные '&' (AND)
+                and_expressions = expr.split('&')
+                and_q = Q()
+                for and_expr in and_expressions:
+                    # Проверяем на наличие оператора NOT '~'
+                    is_negated = False
+                    if and_expr.startswith('~'):
+                        is_negated = True
+                        and_expr = and_expr[1:]  # Убираем '~' из выражения
+
+                    # Каждое and_expr в формате 'поле__lookup=значение'
+                    if '=' in and_expr:
+                        field_lookup, value = and_expr.split('=', 1)
+                        q = Q(**{field_lookup: value})
+                        if is_negated:
+                            and_q &= ~q
+                        else:
+                            and_q &= q
+                    else:
+                        # Неверное выражение
+                        continue
+                or_q_objects |= and_q
+            q_objects &= or_q_objects
+
+        # Применяем фильтры к queryset
+        queryset = queryset.filter(q_objects)
+
+        return queryset
 
     @action(methods=['POST'], detail=True)
     def update_booking_status(self, request, pk=None):
