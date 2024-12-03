@@ -15,7 +15,6 @@ class DiningTableSerializer(serializers.ModelSerializer):
 
 class BookingSerializer(serializers.ModelSerializer):
     client = ClientSerializer(read_only=True)
-    #Эти поля используются для создания нового клиента, если клиент с указанным email еще не существует
     client_email = serializers.EmailField(write_only=True)
     client_first_name = serializers.CharField(write_only=True, required=False, allow_blank=True)
     client_last_name = serializers.CharField(write_only=True, required=False, allow_blank=True)
@@ -44,7 +43,6 @@ class BookingSerializer(serializers.ModelSerializer):
             raise ValidationError('Нельзя бронировать на прошедшие даты')
 
         booking_hour = value.hour
-        # Проверяем, что время бронирования не раньше 09:00 и не позднее 23:00
         if booking_hour < 9:
             raise ValidationError("Время бронирования не может быть раньше 09:00.")
         if booking_hour > 23:
@@ -67,6 +65,18 @@ class BookingSerializer(serializers.ModelSerializer):
         if any(char.isdigit() for char in value):
             raise ValidationError('Фамилия клиента не должна содержать цифры.')
         return value
+
+
+
+
+
+
+
+
+
+
+
+
 #создаем нового клиента при бронировании если его не существует
     def create(self, validated_data):
         client_email = validated_data.pop('client_email')

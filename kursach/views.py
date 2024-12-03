@@ -58,19 +58,19 @@ class BookingViewSet(viewsets.ModelViewSet):
 
         filter_param = query_params.get('filter', None)
         if filter_param:
-            # Разбиваем по '|', который представляет оператор OR
+            # Разбивка по '|'
             or_expressions = filter_param.split('|')
             or_q_objects = Q()
             for expr in or_expressions:
-                # Каждое expr может содержать условия, разделенные '&' (AND)
+                # Каждое expr может содержать условия, разделенные '&'
                 and_expressions = expr.split('&')
                 and_q = Q()
                 for and_expr in and_expressions:
-                    # Проверяем на наличие оператора NOT '~'
+                    # Проверка наличие NOT
                     is_negated = False
                     if and_expr.startswith('~'):
                         is_negated = True
-                        and_expr = and_expr[1:]  # Убираем '~' из выражения
+                        and_expr = and_expr[1:]  # удаление '~'
 
                     # Каждое and_expr в формате 'поле__lookup=значение'
                     if '=' in and_expr:
@@ -85,7 +85,6 @@ class BookingViewSet(viewsets.ModelViewSet):
                 or_q_objects |= and_q
             q_objects &= or_q_objects
 
-        # Применяем фильтры к queryset
         queryset = queryset.filter(q_objects)
 
         return queryset

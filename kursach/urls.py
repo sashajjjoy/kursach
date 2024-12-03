@@ -4,11 +4,7 @@ from django.contrib import admin
 from django.urls import path, include
 from .views import (
     reservation_form, personal_cab, reservation_success,
-    DiningTableListView, BookingListView,
-    BookingDetailView,client_reservations,
-     BookingViewSet,
- # Импортируем новое представление
-)
+    DiningTableListView, client_reservations, BookingViewSet)
 
 
 router = DefaultRouter()

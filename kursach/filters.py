@@ -21,5 +21,5 @@ class Meta:
         'booking_date__gte',
         'booking_date__lte',
         'client_email',
-        'duration_of_booking',  # Если вы хотите фильтровать по длительности бронирования
+        'duration_of_booking',
     ]

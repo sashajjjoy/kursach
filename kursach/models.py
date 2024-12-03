@@ -1,10 +1,8 @@
-
 from django.db import models
 from django.contrib import admin
 from django.utils import timezone
 import pytz
 from simple_history.models import HistoricalRecords
-
 
 class Client(models.Model):
     client_id = models.AutoField(primary_key=True)
@@ -29,7 +27,7 @@ class DiningTable(models.Model):
     seating_capacity = models.PositiveIntegerField()
     description = models.TextField(blank=True, null=True)
     history = HistoricalRecords()
-    @admin.display(description='Описание столика')  # Короткое описание
+    @admin.display(description='Описание столика')
     def short_description(self):
         return self.description or "Нет описания"
 
