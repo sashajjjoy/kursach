@@ -1,63 +1,46 @@
-version: '3.8'
-
 services:
   web:
-    build: .
-    command: gunicorn kursach.wsgi:application --bind 0.0.0.0:8000
+    build:
+      context: .
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8083"
     volumes:
       - .:/app
     ports:
-      - "8000:8000"
-    env_file:
-      - .env
+      - "8083:8083"  # Настраиваем внешний порт 8083
     depends_on:
       - db
-      - redis
-      - mailhog
+    environment:
+      DJANGO_ALLOWED_HOSTS: "0.0.0.0,localhost,127.0.0.1"
 
   db:
     image: postgres:15
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
     environment:
-      - POSTGRES_DB=your_db_name
-      - POSTGRES_USER=your_db_user
-      - POSTGRES_PASSWORD=your_db_password
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydatabase
     ports:
       - "5432:5432"
-
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
   redis:
-    image: redis:7
+    image: redis:6
     ports:
       - "6379:6379"
-
+  celery:
+    build:
+      context: .
+    command: celery -A kursach worker --loglevel=info
+    depends_on:
+      - web
+      - redis
+      - db
+    environment:
+      DJANGO_SETTINGS_MODULE: "kursach.settings"
   mailhog:
     image: mailhog/mailhog
     ports:
-      - "1025:1025"  # SMTP
-      - "8025:8025"  # Web UI
-
-  celery:
-    build: .
-    command: celery -A kursach worker -l info
-    volumes:
-      - .:/app
-    env_file:
-      - .env
-    depends_on:
-      - db
-      - redis
-
-  celery-beat:
-    build: .
-    command: celery -A kursach beat -l info
-    volumes:
-      - .:/app
-    env_file:
-      - .env
-    depends_on:
-      - db
-      - redis
-
+      - "8025:8025"
 volumes:
   postgres_data:

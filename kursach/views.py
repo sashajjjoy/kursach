@@ -14,7 +14,17 @@ from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import BookingFilter
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.cache import cache
+from django.shortcuts import get_list_or_404
+from .models import Booking  # Замените на вашу модель
 
+def get_user_tasks(user):
+    cache_key = f"user_tasks_{user.id}"
+    tasks = cache.get(cache_key)
+    if tasks is None:
+        tasks = get_list_or_404(Task, owner=user)
+        cache.set(cache_key, tasks, timeout=60*15)  # Кэш на 15 минут
+    return tasks
 class ClientListView(generics.ListCreateAPIView):
     queryset = Client.objects.all()
     serializer_class = ClientSerializer

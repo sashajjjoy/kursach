@@ -7,5 +7,10 @@ psycopg2-binary
 celery
 redis
 django-environ
-simple-history
-import_export
+django-simple-history
+django-import-export
+django-celery-beat
+django-celery-results
+django-redis
+Pillow
+

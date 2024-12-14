@@ -55,6 +55,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'simple_history',
     'drf_yasg',
+    'django_celery_beat',
+    'django_celery_results'
 ]
 
 
@@ -93,10 +95,15 @@ WSGI_APPLICATION = 'kursach.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'mydatabase',        # Должен совпадать с POSTGRES_DB в docker-compose.yml
+        'USER': 'myuser',            # Должен совпадать с POSTGRES_USER
+        'PASSWORD': 'mypassword',    # Должен совпадать с POSTGRES_PASSWORD
+        'HOST': 'db',                # Имя сервиса базы данных в docker-compose.yml
+        'PORT': '5432',              # Порт PostgreSQL
     }
 }
+
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -135,15 +142,19 @@ SECRET_KEY = env('SECRET_KEY')
 ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['localhost'])
 
 DATABASES = {
-    'default': env.db(),
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',  # Путь к файлу SQLite
+    }
 }
 
+
 CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": env('REDIS_URL'),
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://redis:6379/0',  # Имя хоста должно совпадать с именем контейнера Redis в docker-compose.yml
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }
     }
 }
@@ -153,4 +164,11 @@ EMAIL_HOST = env('EMAIL_HOST')
 EMAIL_PORT = env('EMAIL_PORT')
 EMAIL_HOST_USER = env('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
-EMAIL_USE_TLS = env('EMAIL_USE_TLS')
+EMAIL_USE_TLS = False  # Отключаем TLS
+EMAIL_USE_SSL = False
+
+# Настройки Celery
+CELERY_BROKER_URL = 'redis://redis:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_BACKEND = 'redis://redis:6379/0'

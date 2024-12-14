@@ -33,8 +33,6 @@ class DiningTable(models.Model):
     table_number = models.IntegerField(unique=True)
     seating_capacity = models.PositiveIntegerField()
     description = models.TextField(blank=True, null=True)
-    image = models.ImageField(upload_to='table_images/', blank=True, null=True,
-    verbose_name="Изображение")  # Новое поле ImageField
     history = HistoricalRecords()
     @admin.display(description='Описание столика')
     def short_description(self):
