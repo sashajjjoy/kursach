@@ -1,0 +1,11 @@
+Django>=4.0,<5.0
+djangorestframework
+drf-yasg
+django-filter
+gunicorn
+psycopg2-binary
+celery
+redis
+django-environ
+simple-history
+import_export

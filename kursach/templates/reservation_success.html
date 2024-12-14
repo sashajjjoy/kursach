@@ -10,7 +10,8 @@
 <body>
     <div class="container">
         <h2 class="text-center">Спасибо за ваше бронирование!</h2>
-        <p>Ваше бронирование успешно оформлено. Мы свяжемся с вами для подтверждения.</p>
+        <p>Ваше бронирование успешно создано на дату {{ booking.booking_datetime|date:"d-m-Y H:i" }}.</p>
+        <p>Статус: {{ booking.status|default:"Неизвестен" }}</p>
         <a href="{% url 'reservation_form' %}" class="button">Вернуться на главную</a>
     </div>
 </body>

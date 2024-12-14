@@ -1,4 +1,3 @@
-
 from django.db.models import Q
 from django.shortcuts import render, redirect
 from rest_framework.permissions import AllowAny
@@ -14,7 +13,7 @@ from .serializers import ClientSerializer, DiningTableSerializer, BookingSeriali
 from rest_framework.filters import SearchFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import BookingFilter
-
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 class ClientListView(generics.ListCreateAPIView):
     queryset = Client.objects.all()
@@ -55,10 +54,10 @@ class BookingViewSet(viewsets.ModelViewSet):
         queryset = super().get_queryset()
         q_objects = Q()
         query_params = self.request.query_params
+        #queryset = queryset.filter(Q(duration=2)&~Q(client__first_name='Nikolai')|Q(status='Confirmed'))
 
         filter_param = query_params.get('filter', None)
         if filter_param:
-            # Разбивка по '|'
             or_expressions = filter_param.split('|')
             or_q_objects = Q()
             for expr in or_expressions:
@@ -86,7 +85,6 @@ class BookingViewSet(viewsets.ModelViewSet):
             q_objects &= or_q_objects
 
         queryset = queryset.filter(q_objects)
-
         return queryset
 
     @action(methods=['POST'], detail=True)
@@ -111,7 +109,7 @@ class BookingViewSet(viewsets.ModelViewSet):
         start_of_next_week = today + timezone.timedelta(
             days=(7 - today.weekday() % 7))  # Начало следующей недели (понедельник)
         end_of_next_week = start_of_next_week + timezone.timedelta(days=7)  # Конец следующей недели
-
+        #метод filter
         upcoming_bookings = self.queryset.filter(
             booking_datetime__gte=start_of_next_week,
             booking_datetime__lt=end_of_next_week
@@ -192,7 +190,6 @@ def reservation_form(request):
 
         # Создание бронирования
         try:
-
             booking = Booking.objects.create(
                 client=client,
                 table=table,
@@ -205,8 +202,7 @@ def reservation_form(request):
             return render(request, 'reservation_form.html', {
                 'error': 'Этот столик уже забронирован на выбранное время.'
             })
-
-
+        #
         return redirect('reservation_success')
 
     else:
@@ -214,7 +210,7 @@ def reservation_form(request):
         return render(request, 'reservation_form.html')
 
 def client_reservations(request, client_id):
-    # Получение клиента по ID
+    # Получение клиента по ID и ошибка
     client = get_object_or_404(Client, id=client_id)
 
     # Получаем все бронирования конкретного клиента
@@ -261,3 +257,4 @@ def reservation_success(request):
 
 def personal_cab(request):
     return render(request, 'personal_cab.html')
+

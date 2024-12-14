@@ -9,12 +9,24 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
+
+import environ
+from pathlib import Path
+
+env = environ.Env(
+    DEBUG=(bool, False)
+)
+
+# Читаем .env файл
+environ.Env.read_env(env_file=Path(__file__).resolve().parent.parent / '.env')
+
 USE_TZ = True
 TIME_ZONE = 'Europe/Moscow'
 
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+DATABASE_PATH = BASE_DIR / 'db.sqlite3'
 SECRET_KEY = 'django-insecure-(q*v0ho^9ek-r3!#2tjydk0*pd%c7w7(k=nijj$c3cmolnv#u='
 
 DEBUG = True
@@ -41,7 +53,8 @@ INSTALLED_APPS = [
     'import_export',
     'django_filters',
     'rest_framework',
-    'simple_history',# Добавьте эту строку
+    'simple_history',
+    'drf_yasg',
 ]
 
 
@@ -114,3 +127,30 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+DEBUG = env('DEBUG')
+
+SECRET_KEY = env('SECRET_KEY')
+
+ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['localhost'])
+
+DATABASES = {
+    'default': env.db(),
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": env('REDIS_URL'),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+EMAIL_BACKEND = env('EMAIL_BACKEND')
+EMAIL_HOST = env('EMAIL_HOST')
+EMAIL_PORT = env('EMAIL_PORT')
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = env('EMAIL_USE_TLS')
